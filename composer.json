@@ -1,0 +1,15 @@
+{
+    "autoload": {
+        "psr-4": {
+            "YamlFormatter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "YamlFormatter\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    }
+}
