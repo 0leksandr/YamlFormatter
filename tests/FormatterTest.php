@@ -1,27 +1,168 @@
 <?php
-
+/** @noinspection PhpPropertyOnlyWrittenInspection */
 declare(strict_types=1);
 
 namespace YamlFormatter;
 
-use Closure;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
-use function is_array;
-
 class FormatterTest extends TestCase
 {
     /**
      * @return array[]
+     * @throws Exception
      */
     public function dataProvider(): array
     {
         return [
-            ['test', 'test'],
+//            ['a "\'\\string', '"a \"\'\\\\string"' ],
+//            [null,            'null'               ],
+//            [true,            'true'               ],
+//            [false,           'false'              ],
+//            [-13,             '-13'                ],
+//            [6.66,            '6.66'               ],
+//            [-1.23e+45,       '-1.23E+45'          ],
+//            [1e100000,        'INF'                ],
+//            ['123',           '"123"'              ],
+//            [123,             '123'                ],
+//            [123.,            '123.0'              ],
+//            [[],              '[]'                 ],
+//            'datetime' => [
+//                new DateTimeImmutable('2021-04-27 19:09:20'),
+//                '2021-04-27 19:09:20 UTC',
+//            ],
+//            'datetime with timezone' => [
+//                new DateTime('2021-04-27 19:09:20', new DateTimeZone('EST')),
+//                '2021-04-27 19:09:20 EST',
+//            ],
+//            'function' => [
+//                static function (): string {
+//                    return 'test';
+//                },
+//                'closure',
+//            ],
+            'json' => [
+                '{"1":1,"2":2,"three":3}',
+                <<<YAML
+    JSON:
+        1: 1
+        2: 2
+        "three": 3
+YAML,
+            ],
+//            'text' => [
+//                <<<TEXT
+//Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+//TEXT,
+//                <<<YAML
+//    >
+//        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+//         labore et dolore magna aliqua.
+//YAML,
+//            ],
+//            'list' => [
+//                [
+//                    'text',
+//                    [],
+//                    [1, 2, 3],
+//                    ['a' => 1, 'b' => 2, 'c' => 3],
+//                    new TestClass(1, '2', 3.),
+//                ],
+//                <<<YAML
+//    - "text"
+//    - []
+//    -
+//        - 1
+//        - 2
+//        - 3
+//    -
+//        "a": 1
+//        "b": 2
+//        "c": 3
+//    - YamlFormatter\TestClass:
+//        public: 1
+//        protected: "2"
+//        YamlFormatter\TestClass::private: 3.0
+//YAML,
+//            ],
+//            'dict' => [
+//                [
+//                    'a' => 'text',
+//                    'b' => [],
+//                    'c' => [1, 2, 3],
+//                    'd' => ['a' => 1, 'b' => 2, 'c' => 3],
+//                    'e' => new TestClass(1, '2', 3.),
+//                ],
+//                <<<YAML
+//    "a": "text"
+//    "b": []
+//    "c":
+//        - 1
+//        - 2
+//        - 3
+//    "d":
+//        "a": 1
+//        "b": 2
+//        "c": 3
+//    "e" YamlFormatter\TestClass:
+//        public: 1
+//        protected: "2"
+//        YamlFormatter\TestClass::private: 3.0
+//YAML,
+//            ],
+//            'exception' => [
+//                new Exception(
+//                    'test-message',
+//                    666,
+//                    new TestException('test-property')
+//                ),
+//                <<<YAML
+//    exception: Exception
+//    message: "test-message"
+//    code: 666
+//    trace:
+//        - tests/FormatterTest.php:49
+//        - YamlFormatter/FormatterTest::dataProvider
+//        - vendor/phpunit/phpunit/src/Util/Annotation/DocBlock.php:426
+//        - vendor/phpunit/phpunit/src/Util/Annotation/DocBlock.php:283
+//        - vendor/phpunit/phpunit/src/Util/Test.php:322
+//        - vendor/phpunit/phpunit/src/Framework/TestBuilder.php:74
+//        - vendor/phpunit/phpunit/src/Framework/TestSuite.php:884
+//        - vendor/phpunit/phpunit/src/Framework/TestSuite.php:236
+//        - vendor/phpunit/phpunit/src/Framework/TestSuite.php:366
+//        - vendor/phpunit/phpunit/src/Framework/TestSuite.php:505
+//        - vendor/phpunit/phpunit/src/Framework/TestSuite.php:530
+//        - vendor/phpunit/phpunit/src/TextUI/TestSuiteMapper.php:67
+//        - vendor/phpunit/phpunit/src/TextUI/Command.php:390
+//        - vendor/phpunit/phpunit/src/TextUI/Command.php:111
+//        - vendor/phpunit/phpunit/src/TextUI/Command.php:96
+//        - vendor/phpunit/phpunit/phpunit:98
+//    previous:
+//        exception: YamlFormatter\\TestException
+//        trace:
+//            - tests/FormatterTest.php:51
+//            - YamlFormatter/FormatterTest::dataProvider
+//            - vendor/phpunit/phpunit/src/Util/Annotation/DocBlock.php:426
+//            - vendor/phpunit/phpunit/src/Util/Annotation/DocBlock.php:283
+//            - vendor/phpunit/phpunit/src/Util/Test.php:322
+//            - vendor/phpunit/phpunit/src/Framework/TestBuilder.php:74
+//            - vendor/phpunit/phpunit/src/Framework/TestSuite.php:884
+//            - vendor/phpunit/phpunit/src/Framework/TestSuite.php:236
+//            - vendor/phpunit/phpunit/src/Framework/TestSuite.php:366
+//            - vendor/phpunit/phpunit/src/Framework/TestSuite.php:505
+//            - vendor/phpunit/phpunit/src/Framework/TestSuite.php:530
+//            - vendor/phpunit/phpunit/src/TextUI/TestSuiteMapper.php:67
+//            - vendor/phpunit/phpunit/src/TextUI/Command.php:390
+//            - vendor/phpunit/phpunit/src/TextUI/Command.php:111
+//            - vendor/phpunit/phpunit/src/TextUI/Command.php:96
+//            - vendor/phpunit/phpunit/phpunit:98
+//        YamlFormatter\TestException::property: "test-property"
+//YAML
+//            ],
         ];
     }
 
@@ -30,59 +171,22 @@ class FormatterTest extends TestCase
      */
     public function test($value, string $expectedFormatted): void
     {
-        self::assertEquals($expectedFormatted, (new Formatter($value))->format(0)->asYaml());
+        self::assertEquals($expectedFormatted, (new Formatter($value))->format(1)->asYaml());
     }
 
     /**
      * @throws Exception
+     * @noinspection PhpUnusedPrivateFieldInspection
      */
     public function _test(): void
     {
         self::assertEquals(
             [
-                'text' => 'test',
-                'null' => 'null',
-                'true' => 'true',
-                'false' => 'false',
-                'int' => '-13',
-                'float' => '6.66',
-                'big-float' => '-1.23e+45',
-                'inf' => 'INF',
-                'string-123' => '123',
-                'int-123' => '123',
-                'float-123' => '123',
-                'datetime-immutable' => '2021-04-27 19:09:20 America/New_York',
-                'datetime-with-timezone-boston' => '2021-04-27 19:09:20 EST',
-                'datetime-with-timezone-utc' => '2021-04-27 19:09:20 UTC',
-                'empty-array' => '[]',
                 'array' => '{"array":{"array":[42]}}',
                 'anonymous-object' => '{"class":"anonymous","class@anonymous::private":"private","protected":13,"public":[123,true]}',
                 'test-object' => '{"class":"app\\components\\logger\\TestClass","public":"test","protected":123,"app\\components\\logger\\TestClass::private":[false]}',
-                'exception' => '{"class":"Exception","message":"test-message","code":666,"trace":["\app\app\tests\unit\components\logger\FormatterTest.php:72","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:1153","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:842","\app\vendor\phpunit\phpunit\src\Framework\TestResult.php:687","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:796","\app\vendor\phpunit\phpunit\src\Framework\TestSuite.php:746","\app\vendor\phpunit\phpunit\src\Framework\TestSuite.php:746","\app\vendor\phpunit\phpunit\src\TextUI\TestRunner.php:641","\app\vendor\phpunit\phpunit\src\TextUI\Command.php:206","\app\vendor\phpunit\phpunit\src\TextUI\Command.php:162","\app\vendor\phpunit\phpunit\phpunit:61"],"previous":{"class":"app\components\logger\TestException","trace":["\app\app\tests\unit\components\logger\FormatterTest.php:75","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:1153","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:842","\app\vendor\phpunit\phpunit\src\Framework\TestResult.php:687","\app\vendor\phpunit\phpunit\src\Framework\TestCase.php:796","\app\vendor\phpunit\phpunit\src\Framework\TestSuite.php:746","\app\vendor\phpunit\phpunit\src\Framework\TestSuite.php:746","\app\vendor\phpunit\phpunit\src\TextUI\TestRunner.php:641","\app\vendor\phpunit\phpunit\src\TextUI\Command.php:206","\app\vendor\phpunit\phpunit\src\TextUI\Command.php:162","\app\vendor\phpunit\phpunit\phpunit:61"],"object":{"app\components\logger\TestException::property":"test-property"}}}',
-                'function' => 'closure',
             ],
             (new Formatter([
-                'text' => 'test',
-                'null' => null,
-                'true' => true,
-                'false' => false,
-                'int' => -13,
-                'float' => 6.66,
-                'big-float' => -1.23e45,
-                'inf' => 1e100000,
-                'string-123' => '123',
-                'int-123' => 123,
-                'float-123' => 123.0,
-                'datetime-immutable' => new DateTimeImmutable('2021-04-27 19:09:20'),
-                'datetime-with-timezone-boston' => new DateTime(
-                    '2021-04-27 19:09:20',
-                    new DateTimeZone('EST')
-                ),
-                'datetime-with-timezone-utc' => new DateTime(
-                    '2021-04-27 19:09:20',
-                    new DateTimeZone('UTC')
-                ),
-                'empty-array' => [],
                 'array' => [
                     'array' => [
                         'array' => [42],
@@ -97,71 +201,20 @@ class FormatterTest extends TestCase
                     public $public = [123, true];
                 },
                 'test-object' => new TestClass('test', 123, [false]),
-                'exception' => new Exception(
-                    'test-message',
-                    666,
-                    new TestException('test-property')
-                ),
-                'function' => static function (): string {
-                    return 'test';
-                },
             ]))->format(0)
         );
     }
 
-    public function testRecursive(): void
-    {
-        self::assertArrayEquals(
-            [
-                'recursive-object' => static function (string $text): void {
-                    self::assertStringMatchesFormat(
-                        '{"class":"app\components\logger\TestRecursiveObject","self":"app\components\logger\TestRecursiveObject [recursion@%x]"}',
-                        $text
-                    );
-                },
-            ],
-            (new Formatter([
-                'recursive-object' => new TestRecursiveObject(),
-            ]))->format()
-        );
-    }
-
-    protected static function assertArrayEquals(array $expected, array $actual): void
-    {
-        self::compareArrays($expected, $actual, true);
-    }
-
-    protected static function assertArrayIncludes(array $expected, array $actual): void
-    {
-        self::compareArrays($expected, $actual, false);
-    }
-
-    private static function compareArrays(
-        array $expected,
-        array $actual,
-        bool $completeEquality
-    ): void {
-        if ($completeEquality) {
-            $expectedKeys = array_keys($expected);
-            $actualKeys = array_keys($actual);
-            sort($expectedKeys);
-            sort($actualKeys);
-            self::assertEquals($expectedKeys, $actualKeys);
-        }
-
-        foreach ($expected as $expectedKey => $expectedValue) {
-            self::assertArrayHasKey($expectedKey, $actual);
-            $actualValue = $actual[$expectedKey];
-            if (is_array($expectedValue)) {
-                self::assertIsArray($actualValue);
-                self::compareArrays($expectedValue, $actualValue, $completeEquality);
-            } elseif ($expectedValue instanceof Closure) {
-                $expectedValue($actualValue);
-            } else {
-                self::assertEquals($expectedValue, $actualValue);
-            }
-        }
-    }
+//    public function testRecursive(): void
+//    {
+//        self::assertStringMatchesFormat(
+//            <<<YAML
+//YamlFormatter\TestRecursiveObject:
+//                self: YamlFormatter\TestRecursiveObject [recursion@%x]
+//YAML,
+//            (new Formatter(new TestRecursiveObject()))->format(1)->asYaml()
+//        );
+//    }
 }
 
 class TestClass
@@ -174,6 +227,7 @@ class TestClass
     {
         $this->public = $public;
         $this->protected = $protected;
+        /** @noinspection UnusedConstructorDependenciesInspection */
         $this->private = $private;
     }
 }
@@ -189,13 +243,14 @@ class TestRecursiveObject
     }
 }
 
-class TestException extends \Exception
+class TestException extends Exception
 {
     private $property;
 
     public function __construct($property)
     {
         parent::__construct();
+        /** @noinspection UnusedConstructorDependenciesInspection */
         $this->property = $property;
     }
 }

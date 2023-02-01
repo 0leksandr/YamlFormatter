@@ -5,12 +5,30 @@ declare(strict_types=1);
 namespace YamlFormatter\Collection;
 
 use YamlFormatter\Formatted;
+use YamlFormatter\FormattedNamed;
+use YamlFormatter\PostFormatted;
+use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedList extends FormattedCollection
 {
-    protected function linePrefix(): string
+    public function asYaml(): string
     {
-        return '-';
+        $postFormatter = new class extends PostFormatted {
+            protected function stringer(FormattedStringer $stringer): string
+            {
+                return $this->space($stringer);
+            }
+
+            protected function named(FormattedNamed $named): string
+            {
+                return $this->space($named);
+            }
+        };
+        $lines = [];
+        foreach ($this->values as $value) {
+            $lines[] = "{$this->prefix()}-{$postFormatter->format($value)}";
+        }
+        return implode(PHP_EOL, $lines);
     }
 
     public function add(Formatted $value): self

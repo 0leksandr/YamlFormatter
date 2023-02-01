@@ -10,6 +10,9 @@ use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedArray extends FormattedDict
 {
+    /**
+     * @param mixed $key
+     */
     protected function fmtKey($key): string
     {
         $keyFormatted = (new Formatter($key))->format(0);

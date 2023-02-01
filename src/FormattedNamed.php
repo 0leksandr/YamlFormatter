@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace YamlFormatter;
 
-use YamlFormatter\Collection\FormattedDict;
-use YamlFormatter\Collection\FormattedList;
 use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedNamed extends Formatted
@@ -33,21 +31,6 @@ final class FormattedNamed extends Formatted
             protected function named(FormattedNamed $named): string
             {
                 return $this->newline($named);
-            }
-
-            protected function list(FormattedList $list): string
-            {
-                return $this->newline($list);
-            }
-
-            protected function dict(FormattedDict $dict): string
-            {
-                return $this->newline($dict);
-            }
-
-            private function space(Formatted $formatted): string
-            {
-                return ' ' . $formatted->asYaml();
             }
         };
 

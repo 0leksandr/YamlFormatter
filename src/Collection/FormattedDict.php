@@ -6,17 +6,38 @@ namespace YamlFormatter\Collection;
 
 use YamlFormatter\Formatted;
 use YamlFormatter\FormattedNamed;
+use YamlFormatter\PostFormatted;
+use YamlFormatter\Stringer\FormattedStringer;
 
 abstract class FormattedDict extends FormattedCollection
 {
     abstract protected function fmtKey($key): string;
 
-    protected function linePrefix(): string
+    public function asYaml(): string
     {
-        return '';
+        $postFormatter = new class extends PostFormatted {
+            protected function stringer(FormattedStringer $stringer): string
+            {
+                return $this->empty($stringer);
+            }
+
+            protected function named(FormattedNamed $named): string
+            {
+                return $this->empty($named);
+            }
+        };
+        $lines = [];
+        foreach ($this->values as $value) {
+            $lines[] = "{$this->prefix()}{$postFormatter->format($value)}";
+        }
+        return implode(PHP_EOL, $lines);
     }
 
-    public function add(string $key, Formatted $value): self
+    /**
+     * @param mixed $key
+     * @return $this
+     */
+    public function add($key, Formatted $value): self
     {
         return $this->addValue(new FormattedNamed($this->indent, $this->fmtKey($key), $value));
     }

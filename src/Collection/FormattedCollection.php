@@ -5,51 +5,11 @@ declare(strict_types=1);
 namespace YamlFormatter\Collection;
 
 use YamlFormatter\Formatted;
-use YamlFormatter\FormattedNamed;
-use YamlFormatter\PostFormatted;
-use YamlFormatter\Stringer\FormattedStringer;
 
 abstract class FormattedCollection extends Formatted
 {
     /** @var Formatted[] */
-    private $values;
-
-    abstract protected function linePrefix(): string;
-
-    public function asYaml(): string
-    {
-        $postFormatter = new class extends PostFormatted {
-            protected function stringer(FormattedStringer $stringer): string
-            {
-                return $this->empty($stringer);
-            }
-
-            protected function named(FormattedNamed $named): string
-            {
-                return $this->empty($named);
-            }
-
-            protected function list(FormattedList $list): string
-            {
-                return $this->newline($list);
-            }
-
-            protected function dict(FormattedDict $dict): string
-            {
-                return $this->newline($dict);
-            }
-
-            private function empty(Formatted $formatted): string
-            {
-                return $formatted->asYaml();
-            }
-        };
-        $lines = [];
-        foreach ($this->values as $value) {
-            $lines[] = "{$this->prefix()}{$this->linePrefix()}{$postFormatter->format($value)}";
-        }
-        return implode(PHP_EOL, $lines);
-    }
+    protected $values = [];
 
     public function isNamed(): bool
     {

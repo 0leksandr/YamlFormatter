@@ -12,6 +12,7 @@ use ReflectionClass;
 use Throwable;
 use YamlFormatter\Collection\FormattedArray;
 use YamlFormatter\Collection\FormattedClass;
+use YamlFormatter\Collection\FormattedDict;
 use YamlFormatter\Collection\FormattedList;
 use YamlFormatter\Stringer\FormattedLiteral;
 use YamlFormatter\Stringer\FormattedString;
@@ -55,14 +56,18 @@ class Formatter
     {
         if (($file = $trace['file'] ?? null) && ($line = $trace['line'] ?? null)) {
             return self::fmtFileLine($file, $line);
-        } else {
-            $type = $trace['type'];
-            if ($type === '->') {
-                $type = '::';
+        } elseif ($function = $trace['function'] ?? null) {
+            if (($class = $trace['class'] ?? null) && ($type = $trace['type'] ?? null)) {
+                if ($type === '->') {
+                    $type = '::';
+                }
+                return new FormattedLiteral(str_replace('\\', '/', $class) . $type . $function);
+            } else {
+                return new FormattedLiteral($function);
             }
-            return new FormattedLiteral(
-                str_replace('\\', '/', $trace['class']) . $type . $trace['function']
-            );
+        } else {
+            // TODO: alert
+            return new FormattedLiteral(print_r($trace, true));
         }
     }
 
@@ -72,19 +77,19 @@ class Formatter
             [$file, $line] = [$matches[1], (int)($matches[2])];
         }
 
-        if ($root = self::getProjectRoot()) {
-            $file = preg_replace("~^{$root}/~", '', $file);
-        }
+        $root = self::getProjectRoot();
+        $file = preg_replace("~^{$root}/~", '', $file);
 
         return new FormattedLiteral("{$file}:{$line}");
     }
 
-    public static function getProjectRoot(): ?string
+    public static function getProjectRoot(): string
     {
         $dir = __DIR__;
         while (true) {
             if ($dir === '/') {
-                return null;
+                // TODO: exception
+                die(__FILE__ . ':' . __LINE__ . ': cannot define project root');
             }
             if (file_exists($dir . '/.git/')) {
                 return $dir;
@@ -177,7 +182,7 @@ class Formatter
     {
         $formatted = new FormattedList($indent);
         foreach ($list as $item) {
-            $formatted->add($this->fmtValue($item, $indent));
+            $formatted->add($this->fmtValue($item, $indent + 1));
         }
 
         return $formatted;
@@ -190,8 +195,17 @@ class Formatter
     {
         $formatted = new FormattedArray($indent);
         foreach ($array as $key => $item) {
-            /** @var int|string $key */
-            $formatted->add((string)$key, $this->fmtValue($item, $indent));
+            $formatted->add($key, $this->fmtValue($item, $indent + 1));
+        }
+
+        return $formatted;
+    }
+
+    private function fmtAsClassProperties(array $array, int $indent): FormattedClass
+    {
+        $formatted = new FormattedClass($indent);
+        foreach ($array as $key => $item) {
+            $formatted->add($key, $this->fmtValue($item, $indent + 1));
         }
 
         return $formatted;
@@ -211,7 +225,7 @@ class Formatter
     private static function fmtFloat(float $float): FormattedLiteral
     {
         $str = (string)$float;
-        if (strpos($str, '.') === false) {
+        if (strpos($str, '.') === false && !is_infinite($float)) {
             $str .= '.0';
         }
 
@@ -221,6 +235,7 @@ class Formatter
     private function fmtString(string $string, int $indent): Formatted
     {
         $json = json_decode($string, true);
+var_dump($string, $indent, $json);
         if (is_array($json)) {
             return new FormattedNamed($indent, 'JSON', $this->fmtArray($json, $indent + 1));
         }
@@ -243,9 +258,9 @@ class Formatter
 
         return (new FormattedClass($indent))
             ->merge(
-                $this->fmtArray(
+                $this->fmtAsClassProperties(
                     array_filter([
-                        'exception' => self::getClassName($throwable),
+                        'exception' => new FormattedLiteral(self::getClassName($throwable)),
                         'message' => $throwable->getMessage(),
                         'code' => $throwable->getCode(),
                         'trace' => $formattedTrace,

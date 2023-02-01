@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 use YamlFormatter\FormattedNamed;
 use YamlFormatter\Formatter;
+use YamlFormatter\Stringer\FormattedLiteral;
+
+// add to:
+// - \Monolog\Logger::log
 
 if (!function_exists('\my_log')) { // v3.0
     define('VOID', 'VOID');
+    define('DEBUG_ERRORS_LEVEL', 1);
     define(
         'IGNORED_ERRORS',
         [
@@ -22,6 +27,12 @@ if (!function_exists('\my_log')) { // v3.0
             ],
             'phar:///app/vendor/phpstan/phpstan/phpstan.phar/vendor/nette/di/src/DI/ContainerLoader.php:87' => [
                 '^file_get_contents\(/tmp/phpstan/cache/.*\): Failed to open stream: No such file or directory$',
+            ],
+            'phar:///app/vendor/phpstan/phpstan/phpstan.phar/src/Command/CommandHelper.php:185' => [
+                '^mkdir\(\): File exists$',
+            ],
+            'vendor/dg/bypass-finals/src/BypassFinals.php:227' => [
+                '^stat\(\): stat failed for /app/[^ ]+$',
             ],
         ]
     );
@@ -81,8 +92,8 @@ if (!function_exists('\my_log')) { // v3.0
         my_log_at_point(
             [
                 array_map(
-                    static function (array $trace): string {
-                        return Formatter::fmtTrace($trace)->asString();
+                    static function (array $trace): FormattedLiteral {
+                        return Formatter::fmtTrace($trace);
                     },
                     debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)
                 ),
@@ -91,7 +102,7 @@ if (!function_exists('\my_log')) { // v3.0
         );
     }
 
-    if (true) {
+    if (DEBUG_ERRORS_LEVEL >= 1) {
         $isVendor = static function (string $class): bool {
             $root = Formatter::getProjectRoot();
             /** @var Composer\Autoload\ClassLoader $loader */
@@ -116,7 +127,28 @@ if (!function_exists('\my_log')) { // v3.0
             }
             return false;
         };
+        if (DEBUG_ERRORS_LEVEL >= 2) {
+            declare(ticks=1);
+            register_tick_function(static function (): void {
+                global $backtrace;
+                $backtrace = debug_backtrace();
+            });
+        }
+//        ini_set('error_log', Formatter::getProjectRoot() . '/my_log.txt');
         register_shutdown_function(static function () use ($isErrorIgnored): void {
+            global $backtrace;
+            if ($backtrace) {
+                if (DEBUG_ERRORS_LEVEL === 2) {
+                    $backtrace = array_map(
+                        static function (array $trace): FormattedLiteral {
+                            return Formatter::fmtTrace($trace);
+                        },
+                        $backtrace
+                    );
+                }
+                my_log($backtrace);
+            }
+
             if ($error = error_get_last()) {
                 $fileLine = Formatter::fmtTrace($error)->asString();
                 $message = $error['message'];
