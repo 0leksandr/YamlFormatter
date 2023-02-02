@@ -8,16 +8,12 @@ use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedNamed extends Formatted
 {
-    /** @var string */
-    private $name;
-    /** @var Formatted */
-    private $value;
-
-    public function __construct(int $indent, string $name, Formatted $value)
-    {
+    public function __construct(
+        int $indent,
+        private string $name,
+        private Formatted $value,
+    ) {
         parent::__construct($indent);
-        $this->name = $name;
-        $this->value = $value;
     }
 
     public function asYaml(): string
@@ -25,12 +21,12 @@ final class FormattedNamed extends Formatted
         $postFormatter = new class extends PostFormatted {
             protected function stringer(FormattedStringer $stringer): string
             {
-                return $this->space($stringer);
+                return self::space($stringer);
             }
 
             protected function named(FormattedNamed $named): string
             {
-                return $this->newline($named);
+                return self::newline($named);
             }
         };
 

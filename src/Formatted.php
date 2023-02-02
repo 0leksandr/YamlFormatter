@@ -6,12 +6,9 @@ namespace YamlFormatter;
 
 abstract class Formatted
 {
-    /** @var int */
-    protected $indent;
-
-    public function __construct(int $indent)
-    {
-        $this->indent = $indent;
+    public function __construct(
+        protected int $indent
+    ) {
     }
 
     abstract public function asYaml(): string;

@@ -235,7 +235,6 @@ class Formatter
     private function fmtString(string $string, int $indent): Formatted
     {
         $json = json_decode($string, true);
-var_dump($string, $indent, $json);
         if (is_array($json)) {
             return new FormattedNamed($indent, 'JSON', $this->fmtArray($json, $indent + 1));
         }

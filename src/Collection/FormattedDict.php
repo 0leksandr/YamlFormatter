@@ -18,12 +18,12 @@ abstract class FormattedDict extends FormattedCollection
         $postFormatter = new class extends PostFormatted {
             protected function stringer(FormattedStringer $stringer): string
             {
-                return $this->empty($stringer);
+                return self::empty($stringer);
             }
 
             protected function named(FormattedNamed $named): string
             {
-                return $this->empty($named);
+                return self::empty($named);
             }
         };
         $lines = [];

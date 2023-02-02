@@ -16,12 +16,12 @@ final class FormattedList extends FormattedCollection
         $postFormatter = new class extends PostFormatted {
             protected function stringer(FormattedStringer $stringer): string
             {
-                return $this->space($stringer);
+                return self::space($stringer);
             }
 
             protected function named(FormattedNamed $named): string
             {
-                return $this->space($named);
+                return self::space($named);
             }
         };
         $lines = [];

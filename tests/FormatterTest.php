@@ -46,7 +46,7 @@ class FormatterTest extends TestCase
 //                'closure',
 //            ],
             'json' => [
-                '{"1":1,"2":2,"three":3}',
+                '{"1":1,"2":2,"three":3}', // ,"[4]":"[\"four\"]",5:[],6:{}
                 <<<YAML
     JSON:
         1: 1

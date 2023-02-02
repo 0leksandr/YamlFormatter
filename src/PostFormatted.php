@@ -9,7 +9,7 @@ use YamlFormatter\Collection\FormattedDict;
 use YamlFormatter\Collection\FormattedList;
 use YamlFormatter\Stringer\FormattedStringer;
 
-abstract class PostFormatted
+abstract class PostFormatted // MAYBE: Prefixed, PostFormatter
 {
     abstract protected function stringer(FormattedStringer $stringer): string;
 
@@ -17,29 +17,29 @@ abstract class PostFormatted
 
     public function format(Formatted $formatted): string
     {
-        if ($formatted instanceof FormattedStringer) {
+        if ($formatted instanceof FormattedStringer) { // TODO: refactor
             return $this->stringer($formatted);
         } elseif ($formatted instanceof FormattedNamed) {
             return $this->named($formatted);
         } elseif ($formatted instanceof FormattedCollection) {
-            return $this->newline($formatted);
+            return self::newline($formatted);
         } else {
             throw new \RuntimeException('fuck');
         }
     }
 
-    protected function newline(Formatted $formatted): string
+    protected static function newline(Formatted $formatted): string
     {
 //        return PHP_EOL . $formatted->prefix() . $formatted->asYaml();
         return PHP_EOL . $formatted->asYaml();
     }
 
-    protected function space(Formatted $formatted): string
+    protected static function space(Formatted $formatted): string
     {
         return ' ' . $formatted->asYaml();
     }
 
-    protected function empty(Formatted $formatted): string
+    protected static function empty(Formatted $formatted): string
     {
         return $formatted->asYaml();
     }
