@@ -5,7 +5,7 @@ namespace YamlFormatter\Collection;
 
 use YamlFormatter\Formatted;
 use YamlFormatter\FormattedNamed;
-use YamlFormatter\PostFormatted;
+use YamlFormatter\FormattedWrapper;
 use YamlFormatter\Stringer\FormattedStringer;
 
 abstract class FormattedDict extends FormattedCollection
@@ -17,13 +17,13 @@ abstract class FormattedDict extends FormattedCollection
 
     public function asYaml(): string
     {
-        $postFormatter = new class extends PostFormatted {
-            protected function stringer(FormattedStringer $stringer): string
+        $wrapper = new class extends FormattedWrapper {
+            public function stringer(FormattedStringer $stringer): string
             {
                 return self::empty($stringer);
             }
 
-            protected function named(FormattedNamed $named): string
+            public function named(FormattedNamed $named): string
             {
                 return self::empty($named);
             }
@@ -32,7 +32,7 @@ abstract class FormattedDict extends FormattedCollection
         return implode(
             PHP_EOL,
             array_map(
-                static fn(FormattedNamed $value) => $postFormatter->format($value),
+                static fn(FormattedNamed $value) => $wrapper->wrap($value),
                 $this->values,
             ),
         );

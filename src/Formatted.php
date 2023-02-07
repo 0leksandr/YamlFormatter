@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter;
@@ -14,6 +13,8 @@ abstract class Formatted
     abstract public function asYaml(): string;
 
     abstract public function isNamed(): bool;
+
+    abstract public function wrappedBy(FormattedWrapper $formattedWrapper): string;
 
     abstract protected function isMultiline(): bool;
 

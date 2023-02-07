@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter;
@@ -18,24 +17,29 @@ final class FormattedNamed extends Formatted
 
     public function asYaml(): string
     {
-        $postFormatter = new class extends PostFormatted {
-            protected function stringer(FormattedStringer $stringer): string
+        $wrapper = new class extends FormattedWrapper {
+            public function stringer(FormattedStringer $stringer): string
             {
                 return self::space($stringer);
             }
 
-            protected function named(FormattedNamed $named): string
+            public function named(FormattedNamed $named): string
             {
                 return self::newline($named);
             }
         };
 
-        return "{$this->name}:{$postFormatter->format($this->value)}";
+        return "{$this->name}:{$wrapper->wrap($this->value)}";
     }
 
     public function isNamed(): bool
     {
         return true;
+    }
+
+    public function wrappedBy(FormattedWrapper $formattedWrapper): string
+    {
+        return $formattedWrapper->named($this);
     }
 
     protected function isMultiline(): bool
