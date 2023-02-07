@@ -75,7 +75,7 @@ if (!function_exists('\my_log')) { // v3.0
             $formattedNamed = new FormattedNamed(
                 1,
                 "{$date} {$fileLine}",
-                (new Formatter($var))->format(1)
+                (new Formatter($var))->format(1),
             );
             $my_log_write($formattedNamed->asYaml() . PHP_EOL);
         }
@@ -159,9 +159,9 @@ if (!function_exists('\my_log')) { // v3.0
                             new FormattedNamed(
                                 1,
                                 'Last error',
-                                (new Formatter($message))->format(2)
+                                (new Formatter($message))->format(2),
                             ),
-                        ]
+                        ],
                     );
                 }
             }
@@ -177,7 +177,7 @@ if (!function_exists('\my_log')) { // v3.0
             if (!$isErrorIgnored($fileLine, $description)) {
                 my_log_file_vars(
                     $fileLine,
-                    [new FormattedNamed(1, 'Error', (new Formatter($description))->format(2))]
+                    [new FormattedNamed(1, 'Error', (new Formatter($description))->format(2))],
                 );
             }
             return true;

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter\Stringer;
@@ -8,13 +7,11 @@ use YamlFormatter\Formatter;
 
 final class FormattedString extends FormattedStringer
 {
-    /** @var string */
-    private $string;
-
-    public function __construct(int $indent, string $string)
-    {
+    public function __construct(
+        int $indent,
+        private string $string,
+    ) {
         parent::__construct($indent);
-        $this->string = $string;
     }
 
     public function asYaml(): string
@@ -28,18 +25,12 @@ final class FormattedString extends FormattedStringer
                 . implode(
                     $n,
                     array_map(
-                        static function (string $line) use ($prefix): string {
-                            return $prefix . $line;
-                        },
-                        array_merge(
-                            ...array_map(
-                                static function (string $line) use ($lineLen): array {
-                                    return str_split($line, $lineLen);
-                                },
-                                preg_split("/\R/", trim($this->string))
-                            )
-                        )
-                    )
+                        static fn(string $line) => $prefix . $line,
+                        array_merge(...array_map(
+                            static fn(string $line) => str_split($line, $lineLen),
+                            preg_split("/\R/", trim($this->string)),
+                        )),
+                    ),
                 );
         } else {
             return $this->asString();

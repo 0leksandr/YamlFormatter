@@ -1,18 +1,14 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter\Stringer;
 
 final class FormattedLiteral extends FormattedStringer
 {
-    /** @var string */
-    private $value;
-
-    public function __construct(string $value)
-    {
+    public function __construct(
+        private string $value,
+    ) {
         parent::__construct(0);
-        $this->value = $value;
     }
 
     public function asYaml(): string

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter\Collection;
@@ -10,10 +9,7 @@ use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedArray extends FormattedDict
 {
-    /**
-     * @param mixed $key
-     */
-    protected function fmtKey($key): string
+    protected function fmtKey(int|string $key): string
     {
         $keyFormatted = (new Formatter($key))->format(0);
         if (!$keyFormatted instanceof FormattedStringer) {

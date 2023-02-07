@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter\Collection;
@@ -11,7 +10,10 @@ use YamlFormatter\Stringer\FormattedStringer;
 
 abstract class FormattedDict extends FormattedCollection
 {
-    abstract protected function fmtKey($key): string;
+    /** @var FormattedNamed[] */
+    private array $values = [];
+
+    abstract protected function fmtKey(int|string $key): string;
 
     public function asYaml(): string
     {
@@ -26,27 +28,25 @@ abstract class FormattedDict extends FormattedCollection
                 return self::empty($named);
             }
         };
-        $lines = [];
-        foreach ($this->values as $value) {
-            $lines[] = "{$this->prefix()}{$postFormatter->format($value)}";
-        }
-        return implode(PHP_EOL, $lines);
+
+        return implode(
+            PHP_EOL,
+            array_map(
+                static fn(FormattedNamed $value) => $postFormatter->format($value),
+                $this->values,
+            ),
+        );
     }
 
-    /**
-     * @param mixed $key
-     * @return $this
-     */
-    public function add($key, Formatted $value): self
+    public function add(int|string $key, Formatted $value): self
     {
-        return $this->addValue(new FormattedNamed($this->indent, $this->fmtKey($key), $value));
+        $this->values[] = new FormattedNamed($this->indent, $this->fmtKey($key), $value);
+        return $this;
     }
 
-    /**
-     * @return $this
-     */
     public function merge(self $other): self
     {
-        return $this->mergeCollection($other);
+        $this->values = array_merge($this->values, $other->values);
+        return $this;
     }
 }

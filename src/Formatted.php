@@ -22,9 +22,8 @@ abstract class Formatted
         return $this->isMultiline() ? PHP_EOL : ' ';
     }
 
-    public function prefix(): string
+    public function prefix(): string // TODO: rename
     {
-        $tab = '    ';
-        return implode(array_fill(0, $this->indent, $tab));
+        return '    ';
     }
 }

@@ -1,15 +1,12 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter;
 
 use YamlFormatter\Collection\FormattedCollection;
-use YamlFormatter\Collection\FormattedDict;
-use YamlFormatter\Collection\FormattedList;
 use YamlFormatter\Stringer\FormattedStringer;
 
-abstract class PostFormatted // MAYBE: Prefixed, PostFormatter
+abstract class PostFormatted // MAYBE: Prefixed, PostFormatter, FormattedWrapper
 {
     abstract protected function stringer(FormattedStringer $stringer): string;
 
@@ -30,8 +27,14 @@ abstract class PostFormatted // MAYBE: Prefixed, PostFormatter
 
     protected static function newline(Formatted $formatted): string
     {
-//        return PHP_EOL . $formatted->prefix() . $formatted->asYaml();
-        return PHP_EOL . $formatted->asYaml();
+        $n = PHP_EOL;
+        $prefix = $formatted->prefix();
+        $lines = array_map(
+            static fn(string $line) => $prefix . $line,
+            explode($n, $formatted->asYaml()),
+        );
+
+        return $n . implode($n, $lines);
     }
 
     protected static function space(Formatted $formatted): string

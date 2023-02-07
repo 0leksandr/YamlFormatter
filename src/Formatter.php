@@ -12,7 +12,6 @@ use ReflectionClass;
 use Throwable;
 use YamlFormatter\Collection\FormattedArray;
 use YamlFormatter\Collection\FormattedClass;
-use YamlFormatter\Collection\FormattedDict;
 use YamlFormatter\Collection\FormattedList;
 use YamlFormatter\Stringer\FormattedLiteral;
 use YamlFormatter\Stringer\FormattedString;
@@ -44,9 +43,9 @@ class Formatter
         $this->value = $value;
     }
 
-    public function format(int $indent): Formatted
+    public function format(): Formatted
     {
-        return $this->fmtValue($this->value, $indent);
+        return $this->fmtValue($this->value, 0);
     }
 
     /**
@@ -225,7 +224,7 @@ class Formatter
     private static function fmtFloat(float $float): FormattedLiteral
     {
         $str = (string)$float;
-        if (strpos($str, '.') === false && !is_infinite($float)) {
+        if (!str_contains($str, '.') && !is_infinite($float)) {
             $str .= '.0';
         }
 
@@ -236,7 +235,15 @@ class Formatter
     {
         $json = json_decode($string, true);
         if (is_array($json)) {
-            return new FormattedNamed($indent, 'JSON', $this->fmtArray($json, $indent + 1));
+            $isList = array_keys($json) === range(0, count($json) - 1);
+
+            return new FormattedNamed(
+                $indent,
+                'JSON',
+                $isList
+                    ? $this->fmtList($json, $indent + 1)
+                    : $this->fmtArray($json, $indent + 1),
+            );
         }
 
         return new FormattedString($indent, $string);
@@ -249,10 +256,16 @@ class Formatter
 
     private function fmtThrowable(Throwable $throwable, int $indent): FormattedClass
     {
+        $isVendor = static fn(FormattedLiteral $line) => str_starts_with($line->asString(), 'vendor/');
+
         $formattedTrace = (new FormattedList($indent))
             ->add(self::fmtFileLine($throwable->getFile(), $throwable->getLine()));
         foreach ($throwable->getTrace() as $trace) {
-            $formattedTrace->add(static::fmtTrace($trace));
+            $line = static::fmtTrace($trace);
+            if ($isVendor($line)) {
+                $line = new FormattedLiteral($line->prefix() . $line->asString());
+            }
+            $formattedTrace->add($line);
         }
 
         return (new FormattedClass($indent))
@@ -265,8 +278,8 @@ class Formatter
                         'trace' => $formattedTrace,
                         'previous' => $throwable->getPrevious(),
                     ]),
-                    $indent
-                )
+                    $indent,
+                ),
             )
             ->merge(
                 $this->fmtObjectProperties(
@@ -285,8 +298,8 @@ class Formatter
                         'Error::trace',
                         'Error::previous',
                     ],
-                    $indent
-                )
+                    $indent,
+                ),
             );
     }
 

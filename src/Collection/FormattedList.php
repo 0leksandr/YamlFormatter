@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter\Collection;
@@ -11,6 +10,9 @@ use YamlFormatter\Stringer\FormattedStringer;
 
 final class FormattedList extends FormattedCollection
 {
+    /** @var Formatted[] */
+    private array $values = [];
+
     public function asYaml(): string
     {
         $postFormatter = new class extends PostFormatted {
@@ -24,15 +26,19 @@ final class FormattedList extends FormattedCollection
                 return self::space($named);
             }
         };
-        $lines = [];
-        foreach ($this->values as $value) {
-            $lines[] = "{$this->prefix()}-{$postFormatter->format($value)}";
-        }
-        return implode(PHP_EOL, $lines);
+
+        return implode(
+            PHP_EOL,
+            array_map(
+                static fn(Formatted $value) => '-' . $postFormatter->format($value),
+                $this->values,
+            ),
+        );
     }
 
     public function add(Formatted $value): self
     {
-        return $this->addValue($value);
+        $this->values[] = $value;
+        return $this;
     }
 }
