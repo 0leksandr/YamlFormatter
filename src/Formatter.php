@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace YamlFormatter;
@@ -30,17 +29,15 @@ use function is_string;
 
 class Formatter
 {
-    /** @var mixed */
-    private $value;
     /** @var string[] */
-    private $formattedObjectIds = [];
+    private array $formattedObjectIds = [];
 
     /**
      * @param mixed $value
      */
-    public function __construct($value)
-    {
-        $this->value = $value;
+    public function __construct(
+        private mixed $value,
+    ) {
     }
 
     public function format(): Formatted
@@ -119,10 +116,7 @@ class Formatter
         return (strtotime('2000-01-01') < $int) && ($int < strtotime('2050-01-01'));
     }
 
-    /**
-     * @param mixed $value
-     */
-    private function fmtValue($value, int $indent): Formatted
+    private function fmtValue(mixed $value, int $indent): Formatted
     {
         if ($value === VOID) {
             return new FormattedLiteral('');
@@ -304,11 +298,10 @@ class Formatter
     }
 
     /**
-     * @param object $object
      * @param string[] $ignoredProperties
      */
     private function fmtObjectProperties(
-        $object,
+        object $object,
         array $ignoredProperties,
         int $indent
     ): FormattedClass {
@@ -358,10 +351,7 @@ class Formatter
         return array_keys($array) === range(0, count($array) - 1);
     }
 
-    /**
-     * @param object $object
-     */
-    private static function getClassName($object): string
+    private static function getClassName(object $object): string
     {
         if ((new ReflectionClass($object))->isAnonymous()) {
             return 'anonymous';
@@ -370,10 +360,7 @@ class Formatter
         return get_class($object);
     }
 
-    /**
-     * @param object $object
-     */
-    private function checkRecursion($object): ?FormattedLiteral
+    private function checkRecursion(object $object): ?FormattedLiteral
     {
         $id = spl_object_hash($object);
         if (in_array($id, $this->formattedObjectIds, true)) {
