@@ -16,16 +16,6 @@ final class FormattedLiteral extends FormattedStringer
         return $this->value;
     }
 
-    public function isNamed(): bool
-    {
-        return false;
-    }
-
-    protected function isMultiline(): bool
-    {
-        return false;
-    }
-
     public function asString(): string
     {
         return $this->value;

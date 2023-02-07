@@ -32,18 +32,8 @@ final class FormattedNamed extends Formatted
         return "{$this->name}:{$wrapper->wrap($this->value)}";
     }
 
-    public function isNamed(): bool
-    {
-        return true;
-    }
-
     public function wrappedBy(FormattedWrapper $formattedWrapper): string
     {
         return $formattedWrapper->named($this);
-    }
-
-    protected function isMultiline(): bool
-    {
-        return $this->value->isNamed() || $this->value->isMultiline();
     }
 }

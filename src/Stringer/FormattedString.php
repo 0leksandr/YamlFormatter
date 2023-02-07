@@ -19,13 +19,12 @@ final class FormattedString extends FormattedStringer
         if ($this->isMultiline()) {
             $lineLen = $this->lineLen();
             $n = PHP_EOL;
-            $prefix = $this->prefix();
             return '>'
                 . $n
                 . implode(
                     $n,
                     array_map(
-                        static fn(string $line) => $prefix . $line,
+                        static fn(string $line) => self::TAB . $line,
                         array_merge(...array_map(
                             static fn(string $line) => str_split($line, $lineLen),
                             preg_split("/\R/", trim($this->string)),
@@ -35,17 +34,6 @@ final class FormattedString extends FormattedStringer
         } else {
             return $this->asString();
         }
-    }
-
-    public function isNamed(): bool
-    {
-        return false;
-    }
-
-    protected function isMultiline(): bool
-    {
-        $lineLen = $this->lineLen();
-        return 20 < $lineLen && $lineLen < strlen($this->asString());
     }
 
     public function asString(): string
@@ -62,13 +50,14 @@ final class FormattedString extends FormattedStringer
         return $formatted;
     }
 
-    public function delimiter(): string
+    private function isMultiline(): bool
     {
-        return ' ';
+        $lineLen = $this->lineLen();
+        return 20 < $lineLen && $lineLen < strlen($this->asString());
     }
 
     private function lineLen(): int
     {
-        return 100 - $this->indent * strlen($this->prefix());
+        return 100 - $this->indent * strlen(self::TAB);
     }
 }

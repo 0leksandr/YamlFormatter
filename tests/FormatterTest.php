@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 class FormatterTest extends TestCase
 {
     /**
-     * @return array[]
+     * @return array{mixed, string}[]
      * @throws Exception
      */
     public function dataProvider(): array
@@ -192,13 +192,17 @@ anonymous:
         - true
 YAML,
             ],
+            'empty object' => [
+                new class{},
+                'anonymous:',
+            ],
         ];
     }
 
     /**
      * @dataProvider dataProvider
      */
-    public function test($value, string $expectedFormatted): void
+    public function test(mixed $value, string $expectedFormatted): void
     {
         self::assertEquals($expectedFormatted, (new Formatter($value))->format()->asYaml());
     }

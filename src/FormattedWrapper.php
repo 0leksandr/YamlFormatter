@@ -18,11 +18,15 @@ abstract class FormattedWrapper
 
     public static function newline(Formatted $formatted): string
     {
+        $yaml = $formatted->asYaml();
+        if ($yaml === '') {
+            return '';
+        }
+
         $n = PHP_EOL;
-        $prefix = $formatted->prefix();
         $lines = array_map(
-            static fn(string $line) => $prefix . $line,
-            explode($n, $formatted->asYaml()),
+            static fn(string $line) => Formatted::TAB . $line,
+            explode($n, $yaml),
         );
 
         return $n . implode($n, $lines);

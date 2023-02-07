@@ -257,7 +257,7 @@ class Formatter
         foreach ($throwable->getTrace() as $trace) {
             $line = static::fmtTrace($trace);
             if ($isVendor($line)) {
-                $line = new FormattedLiteral($line->prefix() . $line->asString());
+                $line = new FormattedLiteral(Formatted::TAB . $line->asString());
             }
             $formattedTrace->add($line);
         }
@@ -303,7 +303,7 @@ class Formatter
     private function fmtObjectProperties(
         object $object,
         array $ignoredProperties,
-        int $indent
+        int $indent,
     ): FormattedClass {
         $array = new FormattedClass($indent);
         foreach ((array)$object as $propertyName => $propertyValue) {
