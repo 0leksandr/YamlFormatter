@@ -82,14 +82,18 @@ class Formatter
     public static function getProjectRoot(): string
     {
         $dir = __DIR__;
+        $prev = $dir;
         while (true) {
             if ($dir === '/') {
-                // TODO: exception
-                die(__FILE__ . ':' . __LINE__ . ': cannot define project root');
+                die(__FILE__ . ':' . __LINE__ . ': cannot find project root');
             }
             if (file_exists($dir . '/.git/')) {
                 return $dir;
             }
+            if (!is_writable($dir)) {
+                return $prev;
+            }
+            $prev = $dir;
             $dir = dirname($dir);
         }
     }
@@ -161,7 +165,7 @@ class Formatter
                             'yii\base\ErrorHandler::_memoryReserve',
                             'yii\db\BaseActiveRecord::_oldAttributes',
                         ],
-                        $indent + 1
+                        $indent + 1,
                     )
                 );
             }
@@ -316,7 +320,7 @@ class Formatter
             if (!in_array($formattedPropertyName, $ignoredProperties, true)) {
                 $array->add(
                     $formattedPropertyName,
-                    $this->fmtValue($propertyValue, $indent + 1)
+                    $this->fmtValue($propertyValue, $indent + 1),
                 );
             }
         }
