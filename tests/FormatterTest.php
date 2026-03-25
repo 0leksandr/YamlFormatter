@@ -214,7 +214,7 @@ YAML,
         $exception = new Exception(
             'test-message',
             666,
-            new TestException('test-property')
+            new TestException('test-property'),
         );
         /** @noinspection RegExpRepeatedSpace */
         $expected = <<<YAML
@@ -225,13 +225,15 @@ trace:
     - tests/FormatterTest.php:{$line1}
 (    -     vendor/phpunit/phpunit/src/[\\w/]+\\.php:\\d+
 )+    -     vendor/phpunit/phpunit/phpunit:\\d+
-previous:
+(    -     vendor/bin/phpunit:\\d+
+)?previous:
     exception: YamlFormatter\\\\TestException
     trace:
         - tests/FormatterTest.php:{$line2}
 (        -     vendor/phpunit/phpunit/src/[\\w/]+\\.php:\\d+
 )+        -     vendor/phpunit/phpunit/phpunit:\\d+
-    YamlFormatter\\\\TestException::property: "test-property"$~m
+(        -     vendor/bin/phpunit:\\d+
+)?    YamlFormatter\\\\TestException::property: "test-property"$~m
 YAML;
         self::assertMatchesRegularExpression($expected, (new Formatter($exception))->format()->asYaml());
     }
